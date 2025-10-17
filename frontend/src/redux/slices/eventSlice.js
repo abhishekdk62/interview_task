@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { createEvent, getEventsByProfile, updateEvent } from '../api/eventApi';
+import { createEvent, getEventsByProfile, updateEvent } from '../../services/eventServices';
 
 export const createNewEvent = createAsyncThunk(
   'events/create',

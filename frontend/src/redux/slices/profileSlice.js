@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getAllProfiles, createProfile, updateProfileTimezone } from '../api/profileApi';
+import { getAllProfiles, createProfile, updateProfileTimezone } from '../../services/profileServices';
 
 export const fetchAllProfiles = createAsyncThunk(
   'profiles/fetchAll',
