@@ -6,12 +6,6 @@ class EventRepository {
     return await event.save();
   }
 
-  async findAll() {
-    return await Event.find()
-      .populate("profiles", "name timezone")
-      .sort({ startDate: 1 });
-  }
-
   async findByProfileId(profileId) {
     return await Event.find({ profiles: profileId })
       .populate("profiles", "name timezone")

@@ -1,6 +1,6 @@
-const eventService = require('./event.service');
-const { successResponse } = require('../../utils/response.util');
-const { MESSAGES } = require('../../config/constants');
+const eventService = require("./event.service");
+const { successResponse } = require("../../utils/response.util");
+const { MESSAGES } = require("../../config/constants");
 
 class EventController {
   async createEvent(req, res, next) {
@@ -12,14 +12,6 @@ class EventController {
     }
   }
 
-  async getAllEvents(req, res, next) {
-    try {
-      const events = await eventService.getAllEvents();
-      return successResponse(res, events, MESSAGES.EVENTS_FETCHED);
-    } catch (error) {
-      next(error);
-    }
-  }
 
   async getEventsByProfile(req, res, next) {
     try {
@@ -31,13 +23,10 @@ class EventController {
     }
   }
 
-
-
   async updateEvent(req, res, next) {
     try {
       const { id } = req.params;
-      const { updatedBy, ...updateData } = req.body;
-      const event = await eventService.updateEvent(id, updateData, updatedBy);
+      const event = await eventService.updateEvent(id, req.body);
       return successResponse(res, event, MESSAGES.EVENT_UPDATED);
     } catch (error) {
       next(error);

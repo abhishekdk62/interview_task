@@ -9,12 +9,6 @@ const eventController = require('./event.controller');
 router.post('/', eventController.createEvent);
 
 /**
- * @route GET /api/events
- * @desc Get all events
- * @access Public
- */
-router.get('/', eventController.getAllEvents);
-/**
  * @route GET /api/profile/:profileId
  * @desc Get events by profile id
  * @access Public

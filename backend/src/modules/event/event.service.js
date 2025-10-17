@@ -40,15 +40,11 @@ class EventService {
     });
   }
 
-  async getAllEvents() {
-    return await eventRepository.findAll();
-  }
-
   async getEventsByProfile(profileId) {
     return await eventRepository.findByProfileId(profileId);
   }
 
-  async updateEvent(id, updateData, updatedBy) {
+  async updateEvent(id, updateData) {
     const existingEvent = await eventRepository.findById(id);
 
     if (!existingEvent) {
@@ -59,16 +55,22 @@ class EventService {
     if (updateData.startDate || updateData.endDate) {
       const start = dayjs(updateData.startDate || existingEvent.startDate);
       const end = dayjs(updateData.endDate || existingEvent.endDate);
-
       if (end.isBefore(start) || end.isSame(start)) {
         throw new Error("End date must be after start date");
       }
+    }
+    let profileNames = [];
+    if (updateData.profiles) {
+      const profiles = await Promise.all(
+        updateData.profiles.map((id) => profileRepository.findById(id))
+      );
+      profileNames = profiles.map((p) => p.name);
     }
 
     await eventLogService.createLogsForUpdate(
       existingEvent,
       updateData,
-      updatedBy
+      profileNames
     );
 
     return await eventRepository.update(id, updateData);
