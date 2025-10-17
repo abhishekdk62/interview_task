@@ -1,12 +1,17 @@
 const express = require('express');
-const router = express.Router();
-const eventLogController = require('./eventLog.controller');
 
-/**
- * @route GET /api/event/:eventId
- * @desc Get all the event logs by event id
- * @access Public
- */
-router.get('/event/:eventId', eventLogController.getEventLogs);
+module.exports = (eventLogController) => {
+  const router = express.Router();
 
-module.exports = router;
+  /**
+   * @route   GET /api/logs/event/:eventId
+   * @desc    Get all event logs by event ID
+   * @access  Public
+   * @params  eventId - Event ID
+   */
+  router.get('/event/:eventId', (req, res, next) => 
+    eventLogController.getEventLogs(req, res, next)
+  );
+
+  return router;
+};

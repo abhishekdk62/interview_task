@@ -1,12 +1,14 @@
-const profileService = require("./profile.service");
 const { successResponse } = require("../../utils/response.util");
 const { MESSAGES } = require("../../config/constants");
 
 class ProfileController {
+  constructor(profileService) {
+    this.profileService = profileService;
+  }
   async createProfile(req, res, next) {
     try {
       const { name } = req.body;
-      const profile = await profileService.createProfile(name);
+      const profile = await this.profileService.createProfile(name);
       return successResponse(res, profile, MESSAGES.PROFILE_CREATED, 201);
     } catch (error) {
       next(error);
@@ -14,7 +16,7 @@ class ProfileController {
   }
   async getAllProfiles(req, res, next) {
     try {
-      const profiles = await profileService.getAllProfiles();
+      const profiles = await this.profileService.getAllProfiles();
       return successResponse(res, profiles, MESSAGES.PROFILES_FETCHED);
     } catch (error) {
       next(error);
@@ -24,7 +26,7 @@ class ProfileController {
     try {
       const { id } = req.params;
       const { timezone } = req.body;
-      const profile = await profileService.updateProfileTimezone(id, timezone);
+      const profile = await this.profileService.updateProfileTimezone(id, timezone);
       return successResponse(res, profile, MESSAGES.PROFILE_UPDATED);
     } catch (error) {
       next(error);
@@ -32,4 +34,4 @@ class ProfileController {
   }
 }
 
-module.exports = new ProfileController();
+module.exports =  ProfileController

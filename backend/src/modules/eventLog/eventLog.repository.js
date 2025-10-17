@@ -13,4 +13,4 @@ class EventLogRepository {
   }
 }
 
-module.exports = new EventLogRepository();
+module.exports =  EventLogRepository

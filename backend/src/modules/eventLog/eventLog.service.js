@@ -1,7 +1,10 @@
 const { MESSAGES } = require("../../config/constants");
-const eventLogRepository = require("./eventLog.repository");
 
 class EventLogService {
+  constructor(eventLogRepository)
+  {
+    this.eventLogRepository=eventLogRepository
+  }
   async createLogsForUpdate(existingEvent, updateData, profileNames) {
     const logs = [];
     if (updateData.timezone && updateData.timezone !== existingEvent.timezone) {
@@ -48,15 +51,15 @@ class EventLogService {
       }
     }
     if (logs.length > 0) {
-      await Promise.all(logs.map((log) => eventLogRepository.create(log)));
+      await Promise.all(logs.map((log) => this.eventLogRepository.create(log)));
     }
 
     return logs;
   }
 
   async getEventLogs(eventId) {
-    return await eventLogRepository.findByEventId(eventId);
+    return await this.eventLogRepository.findByEventId(eventId);
   }
 }
 
-module.exports = new EventLogService();
+module.exports =  EventLogService

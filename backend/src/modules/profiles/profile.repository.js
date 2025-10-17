@@ -23,4 +23,4 @@ class ProfileRepository {
   }
 }
 
-module.exports = new ProfileRepository();
+module.exports =  ProfileRepository

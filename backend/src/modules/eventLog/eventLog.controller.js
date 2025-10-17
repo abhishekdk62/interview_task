@@ -1,12 +1,15 @@
-const eventLogService = require('./eventLog.service');
 const { successResponse } = require('../../utils/response.util');
 const { MESSAGES } = require('../../config/constants');
 
 class EventLogController {
+  constructor(eventLogService)
+  {
+    this.eventLogService=eventLogService
+  }
   async getEventLogs(req, res, next) {
     try {
       const { eventId } = req.params;
-      const logs = await eventLogService.getEventLogs(eventId);
+      const logs = await this.eventLogService.getEventLogs(eventId);
       return successResponse(res, logs, MESSAGES.LOGS_FETCHED);
     } catch (error) {
       next(error);
@@ -14,4 +17,4 @@ class EventLogController {
   }
 }
 
-module.exports = new EventLogController();
+module.exports =  EventLogController

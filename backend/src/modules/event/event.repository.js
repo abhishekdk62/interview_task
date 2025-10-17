@@ -20,4 +20,4 @@ class EventRepository {
   }
 }
 
-module.exports = new EventRepository();
+module.exports = EventRepository
