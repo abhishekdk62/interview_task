@@ -4,7 +4,9 @@ const { MESSAGES } = require("../../config/constants");
 class ProfileService {
   async createProfile(name) {
     if (!name || name.trim() === "") {
-      throw new Error("Profile name is required");
+      const err= new Error("Profile name is required");
+        err.statusCode=400
+      throw err
     }
     const existingProfile = await profileRepository.findByName(name);
     if (existingProfile) {
@@ -20,7 +22,9 @@ class ProfileService {
   }
   async updateProfileTimezone(id, timezone) {
     if (!timezone || timezone.trim() === "") {
-      throw new Error("Timezone is required");
+      const err= new Error("Timezone is required");
+      err.statusCode=400
+      throw err
     }
     const profile = await profileRepository.updateTimezone(id, timezone);
     if (!profile) {

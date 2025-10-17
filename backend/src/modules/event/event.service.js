@@ -7,29 +7,41 @@ class EventService {
   async createEvent(eventData) {
     const { profiles, timezone, startDate, endDate } = eventData;
     if (!profiles || profiles.length === 0) {
-      throw new Error("At least one profile is required");
+      const err = new Error("At least one profile is required");
+      err.statusCode = 400;
+      throw err;
     }
 
     if (!timezone) {
-      throw new Error("Timezone is required");
+      const err = new Error("Timezone is required");
+      err.statusCode = 400;
+      throw err;
     }
 
     if (!startDate || !endDate) {
-      throw new Error("Start date and end date are required");
+      const err = new Error("Start date and end date are required");
+      err.statusCode = 400;
+      throw err;
     }
     const start = dayjs(startDate);
     const end = dayjs(endDate);
 
     if (!start.isValid() || !end.isValid()) {
-      throw new Error("Invalid date format");
+      const err = new Error("Invalid date format");
+      err.statusCode = 400;
+      throw err;
     }
 
     if (end.isBefore(start) || end.isSame(start)) {
-      throw new Error("End date must be after start date");
+      const err = new Error("End date must be after start date");
+      err.statusCode = 400;
+      throw err;
     }
 
     if (start.isBefore(dayjs())) {
-      throw new Error("Start date cannot be in the past");
+      const err = new Error("Start date cannot be in the past");
+      err.statusCode = 400;
+      throw err;
     }
 
     return await eventRepository.create({
@@ -56,7 +68,9 @@ class EventService {
       const start = dayjs(updateData.startDate || existingEvent.startDate);
       const end = dayjs(updateData.endDate || existingEvent.endDate);
       if (end.isBefore(start) || end.isSame(start)) {
-        throw new Error("End date must be after start date");
+        const err=new Error("End date must be after start date");
+        err.statusCode=400
+        throw err
       }
     }
     let profileNames = [];
