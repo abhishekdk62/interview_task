@@ -1,0 +1,69 @@
+.logs-modal {
+  max-width: 600px;
+}
+
+.logs-content {
+  padding: 24px;
+  min-height: 200px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.logs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.log-entry {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.log-icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 50%;
+  color: #6366f1;
+}
+
+.log-details {
+  flex: 1;
+}
+
+.log-timestamp {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.log-change {
+  font-size: 14px;
+  color: #1f2937;
+  line-height: 1.5;
+}
+
+.loading-state,
+.error-state,
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: #9ca3af;
+  font-size: 15px;
+}
+
+.error-state {
+  color: #ef4444;
+}

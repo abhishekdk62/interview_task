@@ -1,0 +1,103 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.close-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #6b7280;
+  transition: all 0.2s;
+}
+
+.close-btn:hover {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+.modal-form {
+  padding: 24px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.cancel-btn,
+.update-btn {
+  flex: 1;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-btn {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+.cancel-btn:hover {
+  background: #e5e7eb;
+}
+
+.update-btn {
+  background: #6366f1;
+  color: white;
+}
+
+.update-btn:hover {
+  background: #4f46e5;
+}
+
+.update-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}

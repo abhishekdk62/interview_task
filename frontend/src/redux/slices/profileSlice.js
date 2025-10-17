@@ -6,7 +6,8 @@ export const fetchAllProfiles = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await getAllProfiles();
-      return response.data;
+      
+      return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch profiles');
     }
@@ -18,7 +19,9 @@ export const createNewProfile = createAsyncThunk(
   async (name, { rejectWithValue }) => {
     try {
       const response = await createProfile(name);
-      return response.data;
+      console.log(response.data);
+      
+      return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to create profile');
     }
