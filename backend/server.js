@@ -1,9 +1,8 @@
 const dotenv = require("dotenv");
-const connectDB = require("./config/database");
-const app = require("./app");
-const { config } = require("./config/config");
+const connectDB = require("./src/config/database");
+const app = require("./src/app");
+const { config } = require("./src/config/config");
 dotenv.config();
-const connectDB = connectDB;
 connectDB();
 const server = app.listen(config.port, () => {
   console.log("Server is running on port", config.port);
