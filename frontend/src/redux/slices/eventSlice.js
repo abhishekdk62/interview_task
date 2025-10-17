@@ -74,7 +74,6 @@ const eventSlice = createSlice({
       })
       .addCase(createNewEvent.fulfilled, (state, action) => {
         state.loading = false;
-        state.events.push(action.payload);
       })
       .addCase(createNewEvent.rejected, (state, action) => {
         state.loading = false;

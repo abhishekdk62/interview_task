@@ -101,7 +101,7 @@ const EventLogsModal = ({ event, timezone, onClose }) => {
                     <div className="log-timestamp">
                       {formatDateTime(log.timestamp || log.createdAt)}
                     </div>
-                    <div className="log-change">{log.change || log.description}</div>
+                    <div className="log-change">{log.message}</div>
                   </div>
                 </div>
               ))}

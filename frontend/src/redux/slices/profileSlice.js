@@ -20,7 +20,6 @@ export const createNewProfile = createAsyncThunk(
     try {
       const response = await createProfile(name);
       console.log(response.data);
-      
       return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to create profile');
