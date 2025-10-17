@@ -25,12 +25,11 @@ const TIMEZONES = [
 
 const EventForm = () => {
   const dispatch = useDispatch();
-  const { profiles, loading: profileLoading } = useSelector(
+  const { profiles, createLoading: profileLoading } = useSelector(
     (state) => state.profiles
   );
-  const { loading: eventLoading, error } = useSelector((state) => state.events);
+  const { createLoading: eventLoading, error } = useSelector((state) => state.events);
   const today = dayjs().format("YYYY-MM-DD");
-
   const [selectedProfiles, setSelectedProfiles] = useState([]);
   const [timezone, setTimezone] = useState("Eastern Time (ET)");
   const [startDate, setStartDate] = useState(today);
@@ -46,7 +45,7 @@ const EventForm = () => {
 
   const profileDropdownRef = useRef(null);
   const timezoneDropdownRef = useRef(null);
-  const { selectedProfile, loading } = useSelector((state) => state.profiles);
+  const { selectedProfile, createLoading } = useSelector((state) => state.profiles);
 
   useEffect(() => {
     dispatch(fetchAllProfiles());

@@ -52,7 +52,8 @@ const eventSlice = createSlice({
   initialState: {
     events: [],
     currentEvent: null,
-    loading: false,
+    createLoading: false,
+    updateLoading: false,
     error: null,
   },
   reducers: {
@@ -69,34 +70,34 @@ const eventSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(createNewEvent.pending, (state) => {
-        state.loading = true;
+        state.createLoading = true;
         state.error = null;
       })
       .addCase(createNewEvent.fulfilled, (state, action) => {
-        state.loading = false;
+        state.createLoading = false;
       })
       .addCase(createNewEvent.rejected, (state, action) => {
-        state.loading = false;
+        state.createLoading = false;
         state.error = action.payload;
       })
       .addCase(fetchEventsByProfile.pending, (state) => {
-        state.loading = true;
+        state.createLoading = true;
         state.error = null;
       })
       .addCase(fetchEventsByProfile.fulfilled, (state, action) => {
-        state.loading = false;
+        state.createLoading = false;
         state.events = action.payload;
       })
       .addCase(fetchEventsByProfile.rejected, (state, action) => {
-        state.loading = false;
+        state.createLoading = false;
         state.error = action.payload;
       })
       .addCase(updateExistingEvent.pending, (state) => {
-        state.loading = true;
+        state.updateLoading = true;
         state.error = null;
       })
       .addCase(updateExistingEvent.fulfilled, (state, action) => {
-        state.loading = false;
+        state.updateLoading = false;
         const index = state.events.findIndex(
           (e) => e._id === action.payload._id
         );
@@ -105,7 +106,7 @@ const eventSlice = createSlice({
         }
       })
       .addCase(updateExistingEvent.rejected, (state, action) => {
-        state.loading = false;
+        state.updateLoading = false;
         state.error = action.payload;
       });
   },

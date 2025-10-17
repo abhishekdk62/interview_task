@@ -17,7 +17,7 @@ const TIMEZONES = [
 const EditEventModal = ({ event, onClose }) => {
   const dispatch = useDispatch();
   const { profiles } = useSelector((state) => state.profiles);
-  const { loading } = useSelector((state) => state.events);
+  const { updateLoading } = useSelector((state) => state.events);
 
   const [selectedProfiles, setSelectedProfiles] = useState(
     event.profiles?.map(p => p._id || p) || []
@@ -241,8 +241,8 @@ const EditEventModal = ({ event, onClose }) => {
             <button type="button" className="cancel-btn" onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className="update-btn" disabled={loading}>
-              {loading ? 'Updating...' : 'Update Event'}
+            <button type="submit" className="update-btn" disabled={updateLoading}>
+              {updateLoading ? 'Updating...' : 'Update Event'}
             </button>
           </div>
         </form>
