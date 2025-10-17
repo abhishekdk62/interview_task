@@ -10,15 +10,18 @@ const EventLogController = require("./modules/eventLog/eventLog.controller");
 const EventRepository = require("./modules/event/event.repository");
 const ProfileRepository = require("./modules/profiles/profile.repository");
 const EventLogRepository = require("./modules/eventLog/eventLog.repository");
+const profileRoutes = require("./modules/profiles/profile.routes");
+const eventRoutes = require("./modules/event/event.routes");
+const eventLogRoutes = require("./modules/eventLog/eventLog.routes");
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(corsMiddleware);
 
-const profileRepository=new ProfileRepository()
-const eventRepository=new EventRepository()
-const eventLogRepository=new EventLogRepository()
+const profileRepository = new ProfileRepository();
+const eventRepository = new EventRepository();
+const eventLogRepository = new EventLogRepository();
 
 const profileService = new ProfileService(profileRepository);
 const eventLogService = new EventLogService(eventLogRepository);
@@ -43,14 +46,17 @@ app.get("/health", (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
 app.use("/api/profiles", profileRoutes(profileController));
 app.use("/api/events", eventRoutes(eventController));
 app.use("/api/logs", eventLogRoutes(eventLogController));
-app.use("*", (req, res) => {
+
+app.use((req, res) => {
   res.status(404).json({
     success: false,
     message: "Route not found",
   });
 });
+
 app.use(errorHandler);
 module.exports = app;
