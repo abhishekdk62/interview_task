@@ -1,9 +1,10 @@
+import { ENDPOINTS } from "../constants/profile.endpoints";
 import apiClient from "./apiClient";
 
-export const getAllProfiles = () => apiClient.get("/api/profiles");
+export const getAllProfiles = () => apiClient.get(ENDPOINTS.GET_ALL_PROFILES);
 
 export const createProfile = (name) =>
-  apiClient.post("/api/profiles", { name });
+  apiClient.post(ENDPOINTS.CREATE_PROFILE, { name });
 
 export const updateProfileTimezone = (profileId, timezone) =>
-  apiClient.patch(`/api/profiles/${profileId}/timezone`, { timezone });
+  apiClient.patch(ENDPOINTS.UPDATE_PROFILE_TIMEZONE(profileId), { timezone });

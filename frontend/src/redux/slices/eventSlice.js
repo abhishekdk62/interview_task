@@ -1,44 +1,54 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { createEvent, getEventsByProfile, updateEvent } from '../../services/eventServices';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import {
+  createEvent,
+  getEventsByProfile,
+  updateEvent,
+} from "../../services/eventServices";
 
 export const createNewEvent = createAsyncThunk(
-  'events/create',
+  "events/create",
   async (eventData, { rejectWithValue }) => {
     try {
       const response = await createEvent(eventData);
-      return response.data;
+      return response.data.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to create event');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to create event"
+      );
     }
   }
 );
 
 export const fetchEventsByProfile = createAsyncThunk(
-  'events/fetchByProfile',
+  "events/fetchByProfile",
   async (profileId, { rejectWithValue }) => {
     try {
       const response = await getEventsByProfile(profileId);
-      return response.data;
+      return response.data.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch events');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch events"
+      );
     }
   }
 );
 
 export const updateExistingEvent = createAsyncThunk(
-  'events/update',
+  "events/update",
   async ({ eventId, eventData }, { rejectWithValue }) => {
     try {
       const response = await updateEvent(eventId, eventData);
-      return response.data;
+      return response.data.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to update event');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update event"
+      );
     }
   }
 );
 
 const eventSlice = createSlice({
-  name: 'events',
+  name: "events",
   initialState: {
     events: [],
     currentEvent: null,
@@ -88,7 +98,9 @@ const eventSlice = createSlice({
       })
       .addCase(updateExistingEvent.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.events.findIndex(e => e._id === action.payload._id);
+        const index = state.events.findIndex(
+          (e) => e._id === action.payload._id
+        );
         if (index !== -1) {
           state.events[index] = action.payload;
         }
@@ -100,5 +112,6 @@ const eventSlice = createSlice({
   },
 });
 
-export const { setCurrentEvent, clearCurrentEvent, clearError } = eventSlice.actions;
+export const { setCurrentEvent, clearCurrentEvent, clearError } =
+  eventSlice.actions;
 export default eventSlice.reducer;

@@ -33,7 +33,7 @@ export const updateTimezone = createAsyncThunk(
   async ({ profileId, timezone }, { rejectWithValue }) => {
     try {
       const response = await updateProfileTimezone(profileId, timezone);
-      return response.data;
+      return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to update timezone');
     }

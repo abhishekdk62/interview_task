@@ -6,7 +6,7 @@ export const fetchEventLogs = createAsyncThunk(
   async (eventId, { rejectWithValue }) => {
     try {
       const response = await getEventLogs(eventId);
-      return response.data;
+      return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch logs');
     }
