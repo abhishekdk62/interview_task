@@ -1,9 +1,13 @@
+/* ==========================================
+   EVENT LOGS MODAL
+========================================== */
+
 .logs-modal {
   max-width: 600px;
 }
 
 .logs-content {
-  padding: 24px;
+  padding: var(--spacing-lg);
   min-height: 200px;
   max-height: 500px;
   overflow-y: auto;
@@ -12,16 +16,16 @@
 .logs-list {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--spacing-lg);
 }
 
 .log-entry {
   display: flex;
-  gap: 16px;
-  padding: 16px;
-  background: #f9fafb;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--color-bg-darker);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
 }
 
 .log-icon {
@@ -31,9 +35,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: white;
+  background: var(--color-bg-light);
   border-radius: 50%;
-  color: #6366f1;
+  color: var(--color-primary);
 }
 
 .log-details {
@@ -41,27 +45,16 @@
 }
 
 .log-timestamp {
-  font-size: 13px;
-  font-weight: 500;
-  color: #6b7280;
-  margin-bottom: 4px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-xs);
 }
 
 .log-change {
-  font-size: 14px;
-  color: #1f2937;
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
   line-height: 1.5;
-}
-
-.loading-state,
-.error-state,
-.empty-state {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 200px;
-  color: #9ca3af;
-  font-size: 15px;
 }
 
 .error-state {
