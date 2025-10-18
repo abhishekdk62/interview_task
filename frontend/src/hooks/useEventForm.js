@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
-import { fetchAllProfiles, createNewProfile } from "../redux/slices/profileSlice";
+import { fetchAllProfiles } from "../redux/slices/profileSlice";
 import { clearError, createNewEvent, fetchEventsByProfile } from "../redux/slices/eventSlice";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -19,9 +19,9 @@ export const useEventForm = () => {
     (state) => state.events
   );
 
-  const today = dayjs().format("YYYY-MM-DD");
-  const tomorrow = dayjs().add(1, "day").format("YYYY-MM-DD");
-  const currentTime = dayjs().add(5, "minute").format("HH:mm");
+  const today = useMemo(() => dayjs().format("YYYY-MM-DD"), []);
+  const tomorrow = useMemo(() => dayjs().add(1, "day").format("YYYY-MM-DD"), []);
+  const currentTime = useMemo(() => dayjs().add(5, "minute").format("HH:mm"), []);
 
   const [selectedProfiles, setSelectedProfiles] = useState(new Set());
   const [selectedTimezone, setSelectedTimezone] = useState("America/New_York"); 
@@ -68,13 +68,8 @@ export const useEventForm = () => {
 
   const handleStartDateChange = useCallback((e) => {
     const selectedDate = e.target.value;
-
-    if (dayjs(selectedDate).isBefore(dayjs(), "day")) {
-      toast.error("Start date cannot be in the past");
-      return;
-    }
-
     setStartDate(selectedDate);
+    
     if (endDate && dayjs(endDate).isBefore(dayjs(selectedDate))) {
       setEndDate("");
       toast.info("End date cleared. Please select an end date after start date.");
@@ -111,20 +106,22 @@ export const useEventForm = () => {
       return;
     }
 
-    if (dayjs(startDate).isBefore(dayjs(), "day")) {
-      toast.error("Start date cannot be in the past");
-      return;
-    }
-
     const startDateTime = dayjs.tz(`${startDate} ${startTime}`, selectedTimezone);
     const endDateTime = dayjs.tz(`${endDate} ${endTime}`, selectedTimezone);
+    const nowInSelectedTimezone = dayjs().tz(selectedTimezone);
 
-    if (endDateTime.isBefore(startDateTime)) {
-      toast.error("End date/time must be after start date/time");
+    if (!startDateTime.isValid() || !endDateTime.isValid()) {
+      toast.error("Invalid date/time format");
       return;
     }
-    if (startDate === endDate && startTime >= endTime) {
-      toast.error("End time must be after start time on the same day");
+
+    if (startDateTime.isBefore(nowInSelectedTimezone)) {
+      toast.error("Start date/time cannot be in the past");
+      return;
+    }
+
+    if (endDateTime.isBefore(startDateTime) || endDateTime.isSame(startDateTime)) {
+      toast.error("End date/time must be after start date/time");
       return;
     }
 
@@ -137,7 +134,7 @@ export const useEventForm = () => {
 
     const result = await dispatch(createNewEvent(eventData));
     if (result.type === "events/create/fulfilled") {
-      getEvents();
+      await getEvents();
       setSelectedProfiles(new Set());
       setSelectedTimezone("America/New_York"); 
       setStartDate(today);
