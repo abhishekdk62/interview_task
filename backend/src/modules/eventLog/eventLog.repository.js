@@ -8,7 +8,6 @@ class EventLogRepository {
 
   async findByEventId(eventId) {
     return await EventLog.find({ eventId })
-      .populate('updatedBy', 'name')
       .sort({ createdAt: -1 });
   }
 }

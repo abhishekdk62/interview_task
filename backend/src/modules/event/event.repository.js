@@ -5,6 +5,10 @@ class EventRepository {
     const event = new Event(eventData);
     return await event.save();
   }
+  async findById(eventId) {
+    
+    return await Event.findById(eventId);
+  }
 
   async findByProfileId(profileId) {
     return await Event.find({ profiles: profileId })

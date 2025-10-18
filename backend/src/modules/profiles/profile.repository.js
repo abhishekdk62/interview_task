@@ -9,7 +9,9 @@ class ProfileRepository {
     return await Profile.find().sort({ createdAt: -1 });
   }
   async findByName(name) {
-    return await Profile.findOne({ name: name.trim() });
+    return await Profile.findOne({
+      name: { $regex: `^${name}$`, $options: "i" },
+    });
   }
   async findById(id) {
     return await Profile.findById(id);
@@ -23,4 +25,4 @@ class ProfileRepository {
   }
 }
 
-module.exports =  ProfileRepository
+module.exports = ProfileRepository;

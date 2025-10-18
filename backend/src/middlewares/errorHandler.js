@@ -1,3 +1,5 @@
+const { config } = require("../config/config");
+
 const errorHandler = (err, req, res, next) => {
   console.error(" Error:", err.stack);
   if (err.name === "ValidationError") {
@@ -28,7 +30,7 @@ const errorHandler = (err, req, res, next) => {
   res.status(statusCode).json({
     success: false,
     message,
-    ...(process.env.NODE_ENV === "dev" && { stack: err.stack }),
+    ...(config.nodeEnv === "dev" && { stack: err.stack }),
   });
 };
 
