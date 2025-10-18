@@ -262,3 +262,49 @@ textarea {
     transform: translateX(0);
   }
 }
+.custom-checkbox-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background-color var(--transition-base) ease;
+  border-radius: var(--radius-sm);
+}
+
+.custom-checkbox-item:hover {
+  background-color: var(--color-bg-lighter);
+}
+
+.custom-checkbox {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  border: 2px solid var(--color-border-light);
+  border-radius: var(--radius-sm);
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-base) ease;
+  background-color: var(--color-bg-dark);
+}
+
+.custom-checkbox.checked {
+  background-color: var(--color-button-primary);
+  border-color: var(--color-button-primary);
+}
+
+.custom-checkbox-item span {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+  user-select: none;
+}
+
+.custom-checkbox-item:active {
+  background-color: var(--color-bg-lighter);
+  transform: scale(0.98);
+}
+
+.custom-checkbox-item:focus-within .custom-checkbox {
+  box-shadow: 0 0 0 3px var(--color-primary-alpha);
+}

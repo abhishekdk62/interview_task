@@ -1,14 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-
-const TIMEZONES = [
-  "Eastern Time (ET)",
-  "Pacific Time (PT)",
-  "Central Time (CT)",
-  "Mountain Time (MT)",
-  "India (IST)",
-  "London (GMT)",
-  "Tokyo (JST)",
-];
+import { TIMEZONES } from "../../constants/timezone";
 
 const TimezoneDropdown = ({ selectedTimezone, onTimezoneChange }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,6 +15,7 @@ const TimezoneDropdown = ({ selectedTimezone, onTimezoneChange }) => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+  const selectedLabel = TIMEZONES.find(tz => tz.value === selectedTimezone)?.label || selectedTimezone;
 
   return (
     <div className="form-group">
@@ -33,7 +25,7 @@ const TimezoneDropdown = ({ selectedTimezone, onTimezoneChange }) => {
           className="dropdown-trigger"
           onClick={() => setIsOpen(!isOpen)}
         >
-          <span>{selectedTimezone}</span>
+          <span>{selectedLabel}</span>
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
             <path
               d="M5 7.5L10 12.5L15 7.5"
@@ -49,16 +41,16 @@ const TimezoneDropdown = ({ selectedTimezone, onTimezoneChange }) => {
           <div className="dropdown-menu">
             {TIMEZONES.map((tz) => (
               <div
-                key={tz}
+                key={tz.value}
                 className={`dropdown-item ${
-                  selectedTimezone === tz ? "selected" : ""
+                  selectedTimezone === tz.value ? "selected" : ""
                 }`}
                 onClick={() => {
-                  onTimezoneChange(tz);
+                  onTimezoneChange(tz.value); 
                   setIsOpen(false);
                 }}
               >
-                {tz}
+                {tz.label}
               </div>
             ))}
           </div>

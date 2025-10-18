@@ -5,11 +5,11 @@ import {
   createNewProfile,
   fetchAllProfiles,
   clearError,
-} from "../redux/slices/profileSlice";
-import { fetchEventsByProfile } from "../redux/slices/eventSlice";
+} from "../../redux/slices/profileSlice";
+import { fetchEventsByProfile } from "../../redux/slices/eventSlice";
 import "./ProfileSelector.css";
 import toast from "react-hot-toast";
-import { debounce } from "../utils/debounce";
+import { debounce } from "../../utils/debounce";
 
 
 const ProfileSelector = () => {
@@ -71,17 +71,15 @@ const ProfileSelector = () => {
       if (result.type === "profiles/create/fulfilled") {
         toast.success(`Profile "${newProfileName}" created!`);
         setNewProfileName("");
-        // Refresh profiles list
         dispatch(fetchAllProfiles(searchTerm));
       }
     }
   };
 
-  // Handle search input change
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
-    debouncedFetchProfiles(value); // Trigger debounced API call
+    debouncedFetchProfiles(value); 
   };
 
   return (
@@ -154,7 +152,7 @@ const ProfileSelector = () => {
               disabled={
                 !newProfileName.trim() ||
                 loading ||
-                newProfileName.trim().length < 2
+                newProfileName.trim().length < 3
               }
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">

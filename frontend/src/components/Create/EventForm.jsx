@@ -1,7 +1,7 @@
 import React from "react";
-import { useEventForm } from "../hooks/useEventForm";
+import { useEventForm } from "../../hooks/useEventForm";
 import ProfileDropdown from "./ProfileDropdown";
-import TimezoneDropdown from "./TimezoneDropdown";
+import TimezoneDropdown from "../Create/TimezoneDropdown";
 import DateTimeInputs from "./DateTimeInputs";
 import "./EventForm.css";
 

@@ -1,11 +1,11 @@
 import React from "react";
-import { useEventList } from "../hooks/useEventList";
+import { useEventList } from "../../hooks/useEventList";
 import EventListHeader from "./EventListHeader";
 import LoadingSkeleton from "./LoadingSkeleton";
 import EventsGrid from "./EventsGrid";
-import EditEventModal from "./EditEventModal";
-import EventLogsModal from "./EventLogsModal";
+import EditEventModal from "../Edit/EditEventModal";
 import "./EventList.css";
+import EventLogsModal from "./EventLogsModal";
 
 const EventList = () => {
   const {

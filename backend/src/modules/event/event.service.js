@@ -1,5 +1,10 @@
 const { MESSAGES } = require("../../config/constants");
-const dayjs = require("dayjs");
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 class EventService {
   constructor(eventRepository, profileRepository, eventLogService) {
@@ -7,53 +12,56 @@ class EventService {
     this.profileRepository = profileRepository;
     this.eventLogService = eventLogService;
   }
-  async createEvent(eventData) {
-    const { profiles, timezone, startDate, endDate } = eventData;
-    if (!profiles || profiles.length === 0) {
-      const err = new Error(MESSAGES.PROFILE_REQUIRED);
-      err.statusCode = 400;
-      throw err;
-    }
-
-    if (!timezone) {
-      const err = new Error(MESSAGES.TIMEZONE_REQUIRED);
-      err.statusCode = 400;
-      throw err;
-    }
-
-    if (!startDate || !endDate) {
-      const err = new Error(MESSAGES.TIME_REQUIRED);
-      err.statusCode = 400;
-      throw err;
-    }
-    const start = dayjs(startDate);
-    const end = dayjs(endDate);
-
-    if (!start.isValid() || !end.isValid()) {
-      const err = new Error(MESSAGES.INVALID_DATE);
-      err.statusCode = 400;
-      throw err;
-    }
-
-    if (end.isBefore(start) || end.isSame(start)) {
-      const err = new Error(MESSAGES.END_DATE_AFTER_START);
-      err.statusCode = 400;
-      throw err;
-    }
-
-    if (start.isBefore(dayjs())) {
-      const err = new Error(MESSAGES.START_DATE_CANT_BE_PAST);
-      err.statusCode = 400;
-      throw err;
-    }
-
-    return await this.eventRepository.create({
-      profiles,
-      timezone,
-      startDate,
-      endDate,
-    });
+async createEvent(eventData) {
+  const { profiles, timezone, startDate, endDate } = eventData;
+  
+  if (!profiles || profiles.length === 0) {
+    const err = new Error(MESSAGES.PROFILE_REQUIRED);
+    err.statusCode = 400;
+    throw err;
   }
+
+  if (!timezone) {
+    const err = new Error(MESSAGES.TIMEZONE_REQUIRED);
+    err.statusCode = 400;
+    throw err;
+  }
+
+  if (!startDate || !endDate) {
+    const err = new Error(MESSAGES.TIME_REQUIRED);
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const start = dayjs.utc(startDate);
+  const end = dayjs.utc(endDate);
+
+  if (!start.isValid() || !end.isValid()) {
+    const err = new Error(MESSAGES.INVALID_DATE);
+    err.statusCode = 400;
+    throw err;
+  }
+
+  if (end.isBefore(start) || end.isSame(start)) {
+    const err = new Error(MESSAGES.END_DATE_AFTER_START);
+    err.statusCode = 400;
+    throw err;
+  }
+
+  if (start.isBefore(dayjs.utc())) {
+    const err = new Error(MESSAGES.START_DATE_CANT_BE_PAST);
+    err.statusCode = 400;
+    throw err;
+  }
+
+  return await this.eventRepository.create({
+    profiles,
+    timezone, 
+    startDate: start.toDate(), 
+    endDate: end.toDate(), 
+  });
+}
+
 
   async getEventsByProfile(profileId) {
     return await this.eventRepository.findByProfileId(profileId);

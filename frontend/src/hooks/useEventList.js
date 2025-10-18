@@ -3,29 +3,19 @@ import { useSelector } from "react-redux";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import { TIMEZONES } from "../constants/timezone";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
-
-const TIMEZONE_MAP = {
-  "Eastern Time (ET)": "America/New_York",
-  "Pacific Time (PT)": "America/Los_Angeles",
-  "Central Time (CT)": "America/Chicago",
-  "Mountain Time (MT)": "America/Denver",
-  "India (IST)": "Asia/Kolkata",
-  "London (GMT)": "Europe/London",
-  "Tokyo (JST)": "Asia/Tokyo",
-};
 
 export const useEventList = () => {
   const { events, loading } = useSelector((state) => state.events);
   const { selectedProfile, profiles } = useSelector((state) => state.profiles);
 
-  const [viewTimezone, setViewTimezone] = useState("Eastern Time (ET)");
+  const [viewTimezone, setViewTimezone] = useState("America/New_York");
   const [editingEvent, setEditingEvent] = useState(null);
   const [viewingLogsEvent, setViewingLogsEvent] = useState(null);
 
-  // DSA #1: Hash Map for O(1) profile lookups
   const profileMap = useMemo(() => {
     return profiles.reduce((acc, profile) => {
       acc[profile._id] = profile;
@@ -33,7 +23,6 @@ export const useEventList = () => {
     }, {});
   }, [profiles]);
 
-  // DSA #2: Memoized sorted events by start date (O(n log n))
   const sortedEvents = useMemo(() => {
     if (!events || events.length === 0) return [];
     return [...events].sort((a, b) => {
@@ -41,53 +30,55 @@ export const useEventList = () => {
     });
   }, [events]);
 
-  // DSA #3: Memoized timezone conversion for date formatting
   const formatDateTime = useCallback(
     (dateString) => {
       if (!dateString) return "";
-      const tz = TIMEZONE_MAP[viewTimezone] || "America/New_York";
-      return dayjs(dateString).tz(tz).format("MMM DD, YYYY [at] hh:mm A");
+      return dayjs.utc(dateString).tz(viewTimezone).format("MMM DD, YYYY [at] h:mm A");
     },
     [viewTimezone]
   );
 
-  // DSA #4: Memoized date range formatter
   const formatDateRange = useCallback(
     (startDate, endDate) => {
       if (!startDate || !endDate) return "";
-      const tz = TIMEZONE_MAP[viewTimezone] || "America/New_York";
-      const start = dayjs(startDate).tz(tz);
-      const end = dayjs(endDate).tz(tz);
+      const start = dayjs.utc(startDate).tz(viewTimezone);
+      const end = dayjs.utc(endDate).tz(viewTimezone);
 
       if (start.format("MMM DD, YYYY") === end.format("MMM DD, YYYY")) {
         return `${start.format("MMM DD, YYYY")} • ${start.format(
-          "hh:mm A"
-        )} - ${end.format("hh:mm A")}`;
+          "h:mm A"
+        )} - ${end.format("h:mm A")}`;
       }
-      return `${start.format("MMM DD, YYYY hh:mm A")} - ${end.format(
-        "MMM DD, YYYY hh:mm A"
+      return `${start.format("MMM DD, YYYY h:mm A")} - ${end.format(
+        "MMM DD, YYYY h:mm A"
       )}`;
     },
     [viewTimezone]
   );
 
-  // DSA #5: Memoized events with converted data
   const displayEvents = useMemo(() => {
-    return sortedEvents.map((event) => ({
-      ...event,
-      formattedRange: formatDateRange(event.startDate, event.endDate),
-      formattedCreated: formatDateTime(event.createdAt),
-      formattedUpdated:
-        event.updatedAt && event.updatedAt !== event.createdAt
-          ? formatDateTime(event.updatedAt)
-          : null,
-      profileNames: event.profiles
-        ?.map((p) =>
-          typeof p === "string" ? profileMap[p]?.name || p : p.name
-        )
-        .join(", "),
-    }));
-  }, [sortedEvents, formatDateRange, formatDateTime, profileMap]);
+    const timezoneLabel = TIMEZONES.find(tz => tz.value === viewTimezone)?.label || viewTimezone;
+    
+    return sortedEvents.map((event) => {
+      const eventTimezoneLabel = TIMEZONES.find(tz => tz.value === event.timezone)?.label || event.timezone;
+      
+      return {
+        ...event,
+        formattedRange: formatDateRange(event.startDate, event.endDate),
+        formattedCreated: formatDateTime(event.createdAt),
+        formattedUpdated:
+          event.updatedAt && event.updatedAt !== event.createdAt
+            ? formatDateTime(event.updatedAt)
+            : null,
+        profileNames: event.profiles
+          ?.map((p) =>
+            typeof p === "string" ? profileMap[p]?.name || p : p.name
+          )
+          .join(", "),
+        timezone: eventTimezoneLabel,
+      };
+    });
+  }, [sortedEvents, formatDateRange, formatDateTime, profileMap, viewTimezone]);
 
   useEffect(() => {
     if (selectedProfile?.timezone) {
@@ -95,7 +86,6 @@ export const useEventList = () => {
     }
   }, [selectedProfile]);
 
-  // DSA #6: useCallback for event handlers
   const handleEditClick = useCallback((event) => {
     setEditingEvent(event);
   }, []);

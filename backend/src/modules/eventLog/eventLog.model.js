@@ -1,19 +1,23 @@
-const mongoose = require('mongoose');
-
+const mongoose = require("mongoose");
 const eventLogSchema = new mongoose.Schema({
   eventId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Event',
-    required: true,
+    required: true
   },
   message: {
     type: String,
-    required: true,
+    required: true
   },
-}, {
-  timestamps: true, 
+  metadata: {
+    field: String,        
+    oldValue: String, 
+    newValue: String 
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
 });
 
-eventLogSchema.index({ eventId: 1 });
-
-module.exports = mongoose.model('EventLog', eventLogSchema);
+module.exports= mongoose.model('EventLog', eventLogSchema);

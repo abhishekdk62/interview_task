@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
-import { createNewProfile, fetchAllProfiles } from "../redux/slices/profileSlice";
-import { debounce } from "../utils/debounce";
-
+import { createNewProfile, fetchAllProfiles } from "../../redux/slices/profileSlice";
+import { debounce } from "../../utils/debounce";
 
 const ProfileDropdown = ({
   profiles,
@@ -18,7 +17,6 @@ const ProfileDropdown = ({
   const [isSearching, setIsSearching] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Debounced backend search - 500ms for API calls
   const debouncedBackendSearch = useMemo(
     () =>
       debounce(async (query) => {
@@ -37,7 +35,7 @@ const ProfileDropdown = ({
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
-    debouncedBackendSearch(value); // Backend API call
+    debouncedBackendSearch(value);
   };
 
   const handleAddProfile = useCallback(async () => {
@@ -46,7 +44,6 @@ const ProfileDropdown = ({
       if (result.type === "profiles/create/fulfilled") {
         toast.success(`Profile "${newProfileName}" created!`);
         setNewProfileName("");
-        // Refresh the list after adding
         dispatch(fetchAllProfiles(searchTerm));
       }
     }
@@ -115,14 +112,26 @@ const ProfileDropdown = ({
                 </div>
               ) : (
                 profiles.map((profile) => (
-                  <label key={profile._id} className="checkbox-item">
-                    <input
-                      type="checkbox"
-                      checked={selectedProfiles.has(profile._id)}
-                      onChange={() => onProfileToggle(profile._id)}
-                    />
+                  <div
+                    key={profile._id}
+                    className="custom-checkbox-item"
+                    onClick={() => onProfileToggle(profile._id)}
+                  >
+                    <div className={`custom-checkbox ${selectedProfiles.has(profile._id) ? 'checked' : ''}`}>
+                      {selectedProfiles.has(profile._id) && (
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                          <path
+                            d="M11.6666 3.5L5.24992 9.91667L2.33325 7"
+                            stroke="white"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      )}
+                    </div>
                     <span>{profile.name}</span>
-                  </label>
+                  </div>
                 ))
               )}
             </div>
@@ -144,7 +153,7 @@ const ProfileDropdown = ({
                 disabled={
                   !newProfileName.trim() ||
                   profileLoading ||
-                  newProfileName.trim().length < 2
+                  newProfileName.trim().length < 3
                 }
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">

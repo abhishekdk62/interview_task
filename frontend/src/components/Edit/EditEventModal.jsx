@@ -1,39 +1,41 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateExistingEvent } from '../redux/slices/eventSlice';
+import { fetchEventsByProfile, updateExistingEvent } from '../../redux/slices/eventSlice';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+import { TIMEZONES } from '../../constants/timezone'; 
 import './EditEventModal.css';
+import toast from 'react-hot-toast';
 
-const TIMEZONES = [
-  'Eastern Time (ET)',
-  'Pacific Time (PT)',
-  'Central Time (CT)',
-  'Mountain Time (MT)',
-  'India (IST)',
-  'London (GMT)',
-  'Tokyo (JST)',
-];
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const EditEventModal = ({ event, onClose }) => {
   const dispatch = useDispatch();
   const { profiles } = useSelector((state) => state.profiles);
   const { updateLoading } = useSelector((state) => state.events);
+  const { selectedProfile } = useSelector((state) => state.profiles);
 
   const [selectedProfiles, setSelectedProfiles] = useState(
     event.profiles?.map(p => p._id || p) || []
   );
-  const [timezone, setTimezone] = useState(event.timezone || 'Eastern Time (ET)');
+  
+  const [selectedTimezone, setSelectedTimezone] = useState(
+    event.timezone || 'America/New_York'
+  );
+  
   const [startDate, setStartDate] = useState(
-    dayjs(event.startDate).format('YYYY-MM-DD')
+    dayjs.utc(event.startDate).tz(event.timezone).format('YYYY-MM-DD')
   );
   const [startTime, setStartTime] = useState(
-    dayjs(event.startDate).format('HH:mm')
+    dayjs.utc(event.startDate).tz(event.timezone).format('HH:mm')
   );
   const [endDate, setEndDate] = useState(
-    dayjs(event.endDate).format('YYYY-MM-DD')
+    dayjs.utc(event.endDate).tz(event.timezone).format('YYYY-MM-DD')
   );
   const [endTime, setEndTime] = useState(
-    dayjs(event.endDate).format('HH:mm')
+    dayjs.utc(event.endDate).tz(event.timezone).format('HH:mm')
   );
 
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
@@ -56,8 +58,19 @@ const EditEventModal = ({ event, onClose }) => {
       }
     };
 
+    const handleEscapeKey = (event) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscapeKey);
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
   }, [onClose]);
 
   const handleProfileToggle = (profileId) => {
@@ -72,23 +85,28 @@ const EditEventModal = ({ event, onClose }) => {
     e.preventDefault();
 
     if (selectedProfiles.length === 0) {
-      alert('Please select at least one profile');
+      toast.error('Please select at least one profile');
+      return;
+    }
+    
+    const startDateTime = dayjs.tz(`${startDate} ${startTime}`, selectedTimezone);
+    const endDateTime = dayjs.tz(`${endDate} ${endTime}`, selectedTimezone);
+
+    if (!startDateTime.isValid() || !endDateTime.isValid()) {
+      toast.error('Invalid date/time format');
       return;
     }
 
-    const startDateTime = dayjs(`${startDate} ${startTime}`);
-    const endDateTime = dayjs(`${endDate} ${endTime}`);
-
-    if (endDateTime.isBefore(startDateTime)) {
-      alert('End date/time cannot be before start date/time');
+    if (endDateTime.isBefore(startDateTime) || endDateTime.isSame(startDateTime)) {
+      toast.error('End date/time must be after start date/time');
       return;
     }
 
     const eventData = {
       profiles: selectedProfiles,
-      timezone,
-      startDate: startDateTime.toISOString(),
-      endDate: endDateTime.toISOString(),
+      timezone: selectedTimezone, 
+      startDate: startDateTime.utc().toISOString(), 
+      endDate: endDateTime.utc().toISOString(),
     };
 
     const result = await dispatch(updateExistingEvent({
@@ -97,10 +115,13 @@ const EditEventModal = ({ event, onClose }) => {
     }));
 
     if (result.type === 'events/update/fulfilled') {
-      alert('Event updated successfully!');
+      dispatch(fetchEventsByProfile(selectedProfile._id));
+      toast.success('Event updated successfully!');
       onClose();
     }
   };
+
+  const selectedTimezoneLabel = TIMEZONES.find(tz => tz.value === selectedTimezone)?.label || selectedTimezone;
 
   return (
     <div className="modal-overlay" ref={modalRef}>
@@ -148,16 +169,22 @@ const EditEventModal = ({ event, onClose }) => {
               {isProfileDropdownOpen && (
                 <div className="dropdown-menu">
                   <div className="dropdown-list">
-                    {profiles.map((profile) => (
-                      <label key={profile._id} className="checkbox-item">
-                        <input
-                          type="checkbox"
-                          checked={selectedProfiles.includes(profile._id)}
-                          onChange={() => handleProfileToggle(profile._id)}
-                        />
-                        <span>{profile.name}</span>
-                      </label>
-                    ))}
+                    {profiles.length === 0 ? (
+                      <div style={{ padding: '12px 16px', color: '#9ca3af', fontSize: '14px' }}>
+                        No profiles available
+                      </div>
+                    ) : (
+                      profiles.map((profile) => (
+                        <label key={profile._id} className="checkbox-item">
+                          <input
+                            type="checkbox"
+                            checked={selectedProfiles.includes(profile._id)}
+                            onChange={() => handleProfileToggle(profile._id)}
+                          />
+                          <span>{profile.name}</span>
+                        </label>
+                      ))
+                    )}
                   </div>
                 </div>
               )}
@@ -172,7 +199,7 @@ const EditEventModal = ({ event, onClose }) => {
                 className="dropdown-trigger"
                 onClick={() => setIsTimezoneDropdownOpen(!isTimezoneDropdownOpen)}
               >
-                <span>{timezone}</span>
+                <span>{selectedTimezoneLabel}</span>
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                   <path
                     d="M5 7.5L10 12.5L15 7.5"
@@ -188,14 +215,14 @@ const EditEventModal = ({ event, onClose }) => {
                 <div className="dropdown-menu">
                   {TIMEZONES.map((tz) => (
                     <div
-                      key={tz}
-                      className={`dropdown-item ${timezone === tz ? 'selected' : ''}`}
+                      key={tz.value}
+                      className={`dropdown-item ${selectedTimezone === tz.value ? 'selected' : ''}`}
                       onClick={() => {
-                        setTimezone(tz);
+                        setSelectedTimezone(tz.value);
                         setIsTimezoneDropdownOpen(false);
                       }}
                     >
-                      {tz}
+                      {tz.label}
                     </div>
                   ))}
                 </div>
@@ -211,11 +238,13 @@ const EditEventModal = ({ event, onClose }) => {
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
+                required
               />
               <input
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
+                required
               />
             </div>
           </div>
@@ -228,11 +257,14 @@ const EditEventModal = ({ event, onClose }) => {
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
+                min={startDate}
+                required
               />
               <input
                 type="time"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
+                required
               />
             </div>
           </div>

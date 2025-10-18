@@ -10,16 +10,6 @@ import timezone from "dayjs/plugin/timezone";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-const TIMEZONE_MAP = {
-  "Eastern Time (ET)": "America/New_York",
-  "Pacific Time (PT)": "America/Los_Angeles",
-  "Central Time (CT)": "America/Chicago",
-  "Mountain Time (MT)": "America/Denver",
-  "India (IST)": "Asia/Kolkata",
-  "London (GMT)": "Europe/London",
-  "Tokyo (JST)": "Asia/Tokyo",
-};
-
 export const useEventForm = () => {
   const dispatch = useDispatch();
   const { profiles, createLoading: profileLoading, selectedProfile } = useSelector(
@@ -34,13 +24,12 @@ export const useEventForm = () => {
   const currentTime = dayjs().add(5, "minute").format("HH:mm");
 
   const [selectedProfiles, setSelectedProfiles] = useState(new Set());
-  const [selectedTimezone, setSelectedTimezone] = useState("Eastern Time (ET)");
+  const [selectedTimezone, setSelectedTimezone] = useState("America/New_York"); 
   const [startDate, setStartDate] = useState(today);
   const [startTime, setStartTime] = useState(currentTime);
   const [endDate, setEndDate] = useState(tomorrow);
   const [endTime, setEndTime] = useState("09:00");
 
-  // Hash Map for O(1) profile lookups
   const profileMap = useMemo(() => {
     return profiles.reduce((acc, profile) => {
       acc[profile._id] = profile;
@@ -49,7 +38,7 @@ export const useEventForm = () => {
   }, [profiles]);
 
   useEffect(() => {
-    dispatch(fetchAllProfiles());
+    dispatch(fetchAllProfiles(""));
   }, [dispatch]);
 
   useEffect(() => {
@@ -127,9 +116,8 @@ export const useEventForm = () => {
       return;
     }
 
-    const ianaTimezone = TIMEZONE_MAP[selectedTimezone];
-    const startDateTime = dayjs.tz(`${startDate} ${startTime}`, ianaTimezone);
-    const endDateTime = dayjs.tz(`${endDate} ${endTime}`, ianaTimezone);
+    const startDateTime = dayjs.tz(`${startDate} ${startTime}`, selectedTimezone);
+    const endDateTime = dayjs.tz(`${endDate} ${endTime}`, selectedTimezone);
 
     if (endDateTime.isBefore(startDateTime)) {
       toast.error("End date/time must be after start date/time");
@@ -142,16 +130,16 @@ export const useEventForm = () => {
 
     const eventData = {
       profiles: selectedProfilesArray,
-      timezone: ianaTimezone,
-      startDate: startDateTime.toISOString(),
-      endDate: endDateTime.toISOString(),
+      timezone: selectedTimezone, 
+      startDate: startDateTime.utc().toISOString(),
+      endDate: endDateTime.utc().toISOString(), 
     };
 
     const result = await dispatch(createNewEvent(eventData));
     if (result.type === "events/create/fulfilled") {
       getEvents();
       setSelectedProfiles(new Set());
-      setSelectedTimezone("Eastern Time (ET)");
+      setSelectedTimezone("America/New_York"); 
       setStartDate(today);
       setStartTime(currentTime);
       setEndDate(tomorrow);

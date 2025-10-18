@@ -1,8 +1,9 @@
 import  { useState } from "react";
-import ProfileSelector from "./components/ProfileSelector";
-import EventForm from "./components/EventForm";
-import EventList from "./components/EventList";
+
 import "./App.css";
+import EventForm from "./components/Create/EventForm";
+import EventList from "./components/View/EventList";
+import ProfileSelector from "./components/Profile/ProfileSelector";
 
 function App() {
   const [theme, setTheme] = useState("dark");

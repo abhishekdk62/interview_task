@@ -17,7 +17,7 @@ let nameRegex = /^[A-Za-z]{2}[A-Za-z0-9\s]*$/;
       error.statusCode = 400;
       throw error;
     }
-    if (trimmedName.length < 2) {
+    if (trimmedName.length < 3) {
       const error = new Error(MESSAGES.PROFILE_NAME_TOO_SMALL);
       error.statusCode = 400;
       throw error;
