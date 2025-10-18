@@ -16,7 +16,6 @@ function App() {
           <ProfileSelector />
         </div>
       </div>
-
       <div className="app-content">
         <div className="left-section">
           <EventForm />

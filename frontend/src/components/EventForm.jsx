@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import toast from "react-hot-toast"; // Add this import
+import toast from "react-hot-toast";
 import {
   createNewProfile,
   fetchAllProfiles,
@@ -11,7 +11,21 @@ import {
   fetchEventsByProfile,
 } from "../redux/slices/eventSlice";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import "./EventForm.css";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+const TIMEZONE_MAP = {
+  "Eastern Time (ET)": "America/New_York",
+  "Pacific Time (PT)": "America/Los_Angeles",
+  "Central Time (CT)": "America/Chicago",
+  "Mountain Time (MT)": "America/Denver",
+  "India (IST)": "Asia/Kolkata",
+  "London (GMT)": "Europe/London",
+  "Tokyo (JST)": "Asia/Tokyo",
+};
 
 const TIMEZONES = [
   "Eastern Time (ET)",
@@ -28,7 +42,9 @@ const EventForm = () => {
   const { profiles, createLoading: profileLoading } = useSelector(
     (state) => state.profiles
   );
-  const { createLoading: eventLoading, error } = useSelector((state) => state.events);
+  const { createLoading: eventLoading, error } = useSelector(
+    (state) => state.events
+  );
   const today = dayjs().format("YYYY-MM-DD");
   const [selectedProfiles, setSelectedProfiles] = useState([]);
   const [timezone, setTimezone] = useState("Eastern Time (ET)");
@@ -45,11 +61,12 @@ const EventForm = () => {
 
   const profileDropdownRef = useRef(null);
   const timezoneDropdownRef = useRef(null);
-  const { selectedProfile, createLoading } = useSelector((state) => state.profiles);
+  const { selectedProfile } = useSelector((state) => state.profiles);
 
   useEffect(() => {
     dispatch(fetchAllProfiles());
   }, [dispatch]);
+
   useEffect(() => {
     if (error) {
       toast.error(error, {
@@ -59,6 +76,7 @@ const EventForm = () => {
       dispatch(clearError());
     }
   }, [error, dispatch]);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -88,10 +106,10 @@ const EventForm = () => {
   };
 
   const getEvents = async () => {
-  console.log('selectedid',selectedProfile._id);
-  
+    console.log("selectedid", selectedProfile._id);
     await dispatch(fetchEventsByProfile(selectedProfile._id));
   };
+
   const handleAddProfileInForm = async () => {
     if (newProfileName.trim()) {
       const result = await dispatch(createNewProfile(newProfileName.trim()));
@@ -118,6 +136,7 @@ const EventForm = () => {
       );
     }
   };
+
   const handleEndDateChange = (e) => {
     const selectedDate = e.target.value;
 
@@ -136,6 +155,7 @@ const EventForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (selectedProfiles.length === 0) {
       toast.error("Please select at least one profile", { icon: "⚠️" });
       return;
@@ -149,9 +169,14 @@ const EventForm = () => {
       toast.error("Start date cannot be in the past");
       return;
     }
+    const ianaTimezone = TIMEZONE_MAP[timezone];
+    const startDateTime = dayjs.tz(
+      `${startDate} ${startTime}`,
+      ianaTimezone
+    );
 
-    const startDateTime = dayjs(`${startDate} ${startTime}`);
-    const endDateTime = dayjs(`${endDate} ${endTime}`);
+    const endDateTime = dayjs.tz(`${endDate} ${endTime}`, ianaTimezone);
+
     if (endDateTime.isBefore(startDateTime)) {
       toast.error("End date/time must be after start date/time");
       return;
@@ -163,14 +188,14 @@ const EventForm = () => {
 
     const eventData = {
       profiles: selectedProfiles,
-      timezone,
+      timezone: ianaTimezone,
       startDate: startDateTime.toISOString(),
       endDate: endDateTime.toISOString(),
     };
 
     const result = await dispatch(createNewEvent(eventData));
     if (result.type === "events/create/fulfilled") {
-        getEvents();
+      getEvents();
       setSelectedProfiles([]);
       setTimezone("Eastern Time (ET)");
       setStartDate(today);
@@ -323,7 +348,7 @@ const EventForm = () => {
               type="date"
               value={startDate}
               onChange={handleStartDateChange}
-              min={today} // ⭐ Prevents selecting past dates
+              min={today}
               placeholder="Pick a date"
             />
             <input
@@ -342,15 +367,15 @@ const EventForm = () => {
               type="date"
               value={endDate}
               onChange={handleEndDateChange}
-              min={startDate || today} // ⭐ End date can't be before start date
+              min={startDate || today}
               placeholder="Pick a date"
-              disabled={!startDate} // ⭐ Disable until start date is selected
+              disabled={!startDate}
             />
             <input
               type="time"
               value={endTime}
               onChange={(e) => setEndTime(e.target.value)}
-              disabled={!startDate} // ⭐ Disable until start date is selected
+              disabled={!startDate}
             />
           </div>
         </div>
