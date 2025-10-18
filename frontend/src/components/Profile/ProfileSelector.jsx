@@ -117,7 +117,7 @@ const ProfileSelector = () => {
               value={searchTerm}
               onChange={handleSearchChange}
             />
-            {loading && <span className="search-loader">Searching...</span>}
+            {loading && <span className="search-loader"></span>}
           </div>
 
           <div className="profile-list">

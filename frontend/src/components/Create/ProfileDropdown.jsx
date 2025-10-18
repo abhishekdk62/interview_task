@@ -1,7 +1,16 @@
-import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
-import { createNewProfile, fetchAllProfiles } from "../../redux/slices/profileSlice";
+import {
+  createNewProfile,
+  fetchAllProfiles,
+} from "../../redux/slices/profileSlice";
 import { debounce } from "../../utils/debounce";
 
 const ProfileDropdown = ({
@@ -16,7 +25,7 @@ const ProfileDropdown = ({
   const [isOpen, setIsOpen] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const dropdownRef = useRef(null);
-const debouncedBackendSearch = useMemo(
+  const debouncedBackendSearch = useMemo(
     () =>
       debounce(async (query) => {
         setIsSearching(true);
@@ -93,9 +102,7 @@ const debouncedBackendSearch = useMemo(
                   onChange={handleSearchChange}
                 />
                 {isSearching && (
-                  <span style={{ fontSize: "12px", color: "#666" }}>
-                    Searching...
-                  </span>
+                  <span style={{ fontSize: "12px", color: "#666" }}></span>
                 )}
               </div>
 
@@ -107,7 +114,7 @@ const debouncedBackendSearch = useMemo(
                     fontSize: "14px",
                   }}
                 >
-                  {isSearching ? "Searching..." : "No profiles available"}
+                  {isSearching ? "": "No profiles available"}
                 </div>
               ) : (
                 profiles.map((profile) => (
@@ -116,9 +123,18 @@ const debouncedBackendSearch = useMemo(
                     className="custom-checkbox-item"
                     onClick={() => onProfileToggle(profile._id)}
                   >
-                    <div className={`custom-checkbox ${selectedProfiles.has(profile._id) ? 'checked' : ''}`}>
+                    <div
+                      className={`custom-checkbox ${
+                        selectedProfiles.has(profile._id) ? "checked" : ""
+                      }`}
+                    >
                       {selectedProfiles.has(profile._id) && (
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 14 14"
+                          fill="none"
+                        >
                           <path
                             d="M11.6666 3.5L5.24992 9.91667L2.33325 7"
                             stroke="white"
