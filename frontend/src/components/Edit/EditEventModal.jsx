@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useEditEventModal } from '../../hooks/useEditEventModal';
 import { TIMEZONES } from '../../constants/timezone';
 import './EditEventModal.css';
@@ -29,7 +29,10 @@ const EditEventModal = ({ event, onClose }) => {
 
   const profileDropdownRef = useRef(null);
   const timezoneDropdownRef = useRef(null);
+  const timezoneSearchInputRef = useRef(null);
   const modalRef = useRef(null);
+
+  const [timezoneSearchTerm, setTimezoneSearchTerm] = useState('');
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -41,6 +44,7 @@ const EditEventModal = ({ event, onClose }) => {
       }
       if (timezoneDropdownRef.current && !timezoneDropdownRef.current.contains(event.target)) {
         setIsTimezoneDropdownOpen(false);
+        setTimezoneSearchTerm('');
       }
     };
 
@@ -58,6 +62,24 @@ const EditEventModal = ({ event, onClose }) => {
       document.removeEventListener('keydown', handleEscapeKey);
     };
   }, [onClose, setIsProfileDropdownOpen, setIsTimezoneDropdownOpen]);
+
+  // Focus search input when timezone dropdown opens
+  useEffect(() => {
+    if (isTimezoneDropdownOpen && timezoneSearchInputRef.current) {
+      timezoneSearchInputRef.current.focus();
+    }
+  }, [isTimezoneDropdownOpen]);
+
+  // Filter timezones based on search term
+  const filteredTimezones = TIMEZONES.filter(tz =>
+    tz.label.toLowerCase().includes(timezoneSearchTerm.toLowerCase())
+  );
+
+  const handleTimezoneSelect = (value) => {
+    setSelectedTimezone(value);
+    setIsTimezoneDropdownOpen(false);
+    setTimezoneSearchTerm('');
+  };
 
   return (
     <div className="modal-overlay" ref={modalRef}>
@@ -147,18 +169,34 @@ const EditEventModal = ({ event, onClose }) => {
 
               {isTimezoneDropdownOpen && (
                 <div className="dropdown-menu">
-                  {TIMEZONES.map((tz) => (
-                    <div
-                      key={tz.value}
-                      className={`dropdown-item ${selectedTimezone === tz.value ? 'selected' : ''}`}
-                      onClick={() => {
-                        setSelectedTimezone(tz.value);
-                        setIsTimezoneDropdownOpen(false);
-                      }}
-                    >
-                      {tz.label}
-                    </div>
-                  ))}
+                  <div className="dropdown-search">
+                    <input
+                      ref={timezoneSearchInputRef}
+                      type="text"
+                      placeholder="Search timezone..."
+                      value={timezoneSearchTerm}
+                      onChange={(e) => setTimezoneSearchTerm(e.target.value)}
+                      className="timezone-search-input"
+                    />
+                  </div>
+                  
+                  <div className="dropdown-list">
+                    {filteredTimezones.length === 0 ? (
+                      <div className="no-results">
+                        No timezones found
+                      </div>
+                    ) : (
+                      filteredTimezones.map((tz) => (
+                        <div
+                          key={tz.value}
+                          className={`dropdown-item ${selectedTimezone === tz.value ? 'selected' : ''}`}
+                          onClick={() => handleTimezoneSelect(tz.value)}
+                        >
+                          {tz.label}
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
               )}
             </div>

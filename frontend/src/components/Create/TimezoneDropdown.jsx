@@ -3,19 +3,39 @@ import { TIMEZONES } from "../../constants/timezone";
 
 const TimezoneDropdown = ({ selectedTimezone, onTimezoneChange }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const dropdownRef = useRef(null);
+  const searchInputRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
+        setSearchTerm("");
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (isOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isOpen]);
+
   const selectedLabel = TIMEZONES.find(tz => tz.value === selectedTimezone)?.label || selectedTimezone;
+
+  const filteredTimezones = TIMEZONES.filter(tz =>
+    tz.label.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleTimezoneSelect = (value) => {
+    onTimezoneChange(value);
+    setIsOpen(false);
+    setSearchTerm("");
+  };
 
   return (
     <div className="form-group">
@@ -39,20 +59,36 @@ const TimezoneDropdown = ({ selectedTimezone, onTimezoneChange }) => {
 
         {isOpen && (
           <div className="dropdown-menu">
-            {TIMEZONES.map((tz) => (
-              <div
-                key={tz.value}
-                className={`dropdown-item ${
-                  selectedTimezone === tz.value ? "selected" : ""
-                }`}
-                onClick={() => {
-                  onTimezoneChange(tz.value); 
-                  setIsOpen(false);
-                }}
-              >
-                {tz.label}
-              </div>
-            ))}
+            <div className="dropdown-search">
+              <input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Search timezone..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="timezone-search-input"
+              />
+            </div>
+            
+            <div className="dropdown-list">
+              {filteredTimezones.length === 0 ? (
+                <div className="no-results">
+                  No timezones found
+                </div>
+              ) : (
+                filteredTimezones.map((tz) => (
+                  <div
+                    key={tz.value}
+                    className={`dropdown-item ${
+                      selectedTimezone === tz.value ? "selected" : ""
+                    }`}
+                    onClick={() => handleTimezoneSelect(tz.value)}
+                  >
+                    {tz.label}
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         )}
       </div>

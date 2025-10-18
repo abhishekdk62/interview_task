@@ -16,8 +16,7 @@ const ProfileDropdown = ({
   const [isOpen, setIsOpen] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const dropdownRef = useRef(null);
-
-  const debouncedBackendSearch = useMemo(
+const debouncedBackendSearch = useMemo(
     () =>
       debounce(async (query) => {
         setIsSearching(true);
