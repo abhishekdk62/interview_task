@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchEventsByProfile, updateExistingEvent } from '../../redux/slices/eventSlice';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import { TIMEZONES } from '../../constants/timezone';
 import toast from 'react-hot-toast';
+import { TIMEZONES } from '../constants/timezone';
+import { fetchEventsByProfile, updateExistingEvent } from '../redux/slices/eventSlice';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
