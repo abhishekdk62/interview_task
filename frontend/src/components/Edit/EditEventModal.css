@@ -23,7 +23,7 @@
   width: 90%;
   max-width: 500px;
   max-height: 90vh;
-  overflow-y: auto;
+  overflow-y: visible;
   box-shadow: var(--shadow-lg);
   animation: scaleIn var(--transition-slow) var(--ease-out);
 }
