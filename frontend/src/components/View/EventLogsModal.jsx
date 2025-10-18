@@ -126,20 +126,7 @@ const EventLogsModal = ({ event, timezone, onClose }) => {
         </div>
         
         <div className="log-message">{log.message}</div>
-        
-        {/* Show before/after values if available */}
-        {log.metadata?.oldValue && log.metadata?.newValue && (
-          <div className="log-changes">
-            <div className="change-row">
-              <span className="change-label">From:</span>
-              <span className="old-value">{log.metadata.oldValue}</span>
-            </div>
-            <div className="change-row">
-              <span className="change-label">To:</span>
-              <span className="new-value">{log.metadata.newValue}</span>
-            </div>
-          </div>
-        )}
+   
       </div>
     </div>
   );
@@ -191,7 +178,7 @@ const EventLogsModal = ({ event, timezone, onClose }) => {
             </div>
           ) : (
             <div className="logs-list">
-              {logs
+              {[...logs]
                 .sort((a, b) => new Date(b.createdAt || b.timestamp) - new Date(a.createdAt || a.timestamp))
                 .map((log) => (
                   <LogEntry key={log._id} log={log} />

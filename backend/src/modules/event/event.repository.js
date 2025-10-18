@@ -7,7 +7,7 @@ class EventRepository {
   }
   async findById(eventId) {
     
-    return await Event.findById(eventId);
+return await Event.findById(eventId).populate('profiles');
   }
 
   async findByProfileId(profileId) {
