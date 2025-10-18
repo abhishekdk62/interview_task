@@ -14,9 +14,11 @@ class ProfileController {
       next(error);
     }
   }
+
   async getAllProfiles(req, res, next) {
     try {
-      const profiles = await this.profileService.getAllProfiles();
+      const { name } = req.query;
+      const profiles = await this.profileService.getAllProfiles(name);
       return successResponse(res, profiles, MESSAGES.PROFILES_FETCHED);
     } catch (error) {
       next(error);
@@ -26,7 +28,10 @@ class ProfileController {
     try {
       const { id } = req.params;
       const { timezone } = req.body;
-      const profile = await this.profileService.updateProfileTimezone(id, timezone);
+      const profile = await this.profileService.updateProfileTimezone(
+        id,
+        timezone
+      );
       return successResponse(res, profile, MESSAGES.PROFILE_UPDATED);
     } catch (error) {
       next(error);
@@ -34,4 +39,4 @@ class ProfileController {
   }
 }
 
-module.exports =  ProfileController
+module.exports = ProfileController;

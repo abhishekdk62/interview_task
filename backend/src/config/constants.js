@@ -5,7 +5,7 @@ const MESSAGES = {
   PROFILE_NAME_TOO_SMALL: 'Name should be atleast 2 charecters long',
   PROFILE_NOT_FOUND: 'Profile not found',
   PROFILE_NAME_REQUIRED: 'Profile name is required',
-  PROFILE_NAME_NOT_VALID: 'Profile name should contain only letters or numbers',
+PROFILE_NAME_NOT_VALID: 'Profile name must start with at least two letters.',
   PROFILE_NAME_EXISTS: 'Profile with this name already exists',
   PROFILES_FETCHED: 'Profiles fetched successfully',
   PROFILES_CHANGED: 'Profiles changed to',

@@ -3,9 +3,9 @@ import { getAllProfiles, createProfile, updateProfileTimezone } from '../../serv
 
 export const fetchAllProfiles = createAsyncThunk(
   'profiles/fetchAll',
-  async (_, { rejectWithValue }) => {
+  async (name, { rejectWithValue }) => {
     try {
-      const response = await getAllProfiles();
+      const response = await getAllProfiles(name);
       
       return response.data.data;
     } catch (error) {

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setSelectedProfile,
@@ -9,6 +9,8 @@ import {
 import { fetchEventsByProfile } from "../redux/slices/eventSlice";
 import "./ProfileSelector.css";
 import toast from "react-hot-toast";
+import { debounce } from "../utils/debounce";
+
 
 const ProfileSelector = () => {
   const dispatch = useDispatch();
@@ -23,8 +25,16 @@ const ProfileSelector = () => {
   const [newProfileName, setNewProfileName] = useState("");
   const dropdownRef = useRef(null);
 
+  const debouncedFetchProfiles = useMemo(
+    () =>
+      debounce((query) => {
+        dispatch(fetchAllProfiles(query));
+      }, 500),
+    [dispatch]
+  );
+
   useEffect(() => {
-    dispatch(fetchAllProfiles());
+    dispatch(fetchAllProfiles(""));
   }, [dispatch]);
 
   useEffect(() => {
@@ -44,6 +54,7 @@ const ProfileSelector = () => {
     setIsOpen(false);
     setSearchTerm("");
   };
+
   useEffect(() => {
     if (error) {
       toast.error(error, {
@@ -56,14 +67,22 @@ const ProfileSelector = () => {
 
   const handleAddProfile = async () => {
     if (newProfileName.trim()) {
-      await dispatch(createNewProfile(newProfileName.trim()));
-      setNewProfileName("");
+      const result = await dispatch(createNewProfile(newProfileName.trim()));
+      if (result.type === "profiles/create/fulfilled") {
+        toast.success(`Profile "${newProfileName}" created!`);
+        setNewProfileName("");
+        // Refresh profiles list
+        dispatch(fetchAllProfiles(searchTerm));
+      }
     }
   };
 
-  const filteredProfiles = profiles.filter((profile) =>
-    profile.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    debouncedFetchProfiles(value); // Trigger debounced API call
+  };
 
   return (
     <div className="profile-selector" ref={dropdownRef}>
@@ -98,22 +117,27 @@ const ProfileSelector = () => {
               type="text"
               placeholder="Search..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearchChange}
             />
+            {loading && <span className="search-loader">Searching...</span>}
           </div>
 
           <div className="profile-list">
-            {filteredProfiles.map((profile) => (
-              <div
-                key={profile._id}
-                className={`profile-item ${
-                  selectedProfile?._id === profile._id ? "selected" : ""
-                }`}
-                onClick={() => handleSelectProfile(profile)}
-              >
-                {profile.name}
-              </div>
-            ))}
+            {profiles.length === 0 && !loading ? (
+              <div className="no-profiles">No profiles found</div>
+            ) : (
+              profiles.map((profile) => (
+                <div
+                  key={profile._id}
+                  className={`profile-item ${
+                    selectedProfile?._id === profile._id ? "selected" : ""
+                  }`}
+                  onClick={() => handleSelectProfile(profile)}
+                >
+                  {profile.name}
+                </div>
+              ))
+            )}
           </div>
 
           <div className="add-profile-section">
@@ -127,7 +151,11 @@ const ProfileSelector = () => {
             <button
               className="add-profile-btn"
               onClick={handleAddProfile}
-              disabled={!newProfileName.trim() || loading||newProfileName.trim().length<2}
+              disabled={
+                !newProfileName.trim() ||
+                loading ||
+                newProfileName.trim().length < 2
+              }
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path

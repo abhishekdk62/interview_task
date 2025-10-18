@@ -1,16 +1,9 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
-import { createNewProfile } from "../redux/slices/profileSlice";
+import { createNewProfile, fetchAllProfiles } from "../redux/slices/profileSlice";
+import { debounce } from "../utils/debounce";
 
-// Debouncing utility
-const debounce = (func, delay) => {
-  let timeoutId;
-  return (...args) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => func(...args), delay);
-  };
-};
 
 const ProfileDropdown = ({
   profiles,
@@ -22,29 +15,29 @@ const ProfileDropdown = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [newProfileName, setNewProfileName] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Memoized filtered profiles
-  const filteredProfiles = useMemo(() => {
-    if (!searchTerm.trim()) return profiles;
-    
-    const lowerSearch = searchTerm.toLowerCase();
-    return profiles.filter((profile) =>
-      profile.name.toLowerCase().includes(lowerSearch)
-    );
-  }, [searchTerm, profiles]);
-
-  // Debounced search handler
-  const debouncedSearch = useMemo(
+  // Debounced backend search - 500ms for API calls
+  const debouncedBackendSearch = useMemo(
     () =>
-      debounce((value) => {
-        setSearchTerm(value);
-      }, 300),
-    []
+      debounce(async (query) => {
+        setIsSearching(true);
+        try {
+          await dispatch(fetchAllProfiles(query));
+        } catch (error) {
+          console.error("Search error:", error);
+        } finally {
+          setIsSearching(false);
+        }
+      }, 500),
+    [dispatch]
   );
 
   const handleSearchChange = (e) => {
-    debouncedSearch(e.target.value);
+    const value = e.target.value;
+    setSearchTerm(value);
+    debouncedBackendSearch(value); // Backend API call
   };
 
   const handleAddProfile = useCallback(async () => {
@@ -53,9 +46,11 @@ const ProfileDropdown = ({
       if (result.type === "profiles/create/fulfilled") {
         toast.success(`Profile "${newProfileName}" created!`);
         setNewProfileName("");
+        // Refresh the list after adding
+        dispatch(fetchAllProfiles(searchTerm));
       }
     }
-  }, [newProfileName, dispatch]);
+  }, [newProfileName, searchTerm, dispatch]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -72,10 +67,7 @@ const ProfileDropdown = ({
     <div className="form-group">
       <label>Profiles</label>
       <div className="custom-dropdown" ref={dropdownRef}>
-        <div
-          className="dropdown-trigger"
-          onClick={() => setIsOpen(!isOpen)}
-        >
+        <div className="dropdown-trigger" onClick={() => setIsOpen(!isOpen)}>
           <span>
             {selectedProfiles.size === 0
               ? "Select profiles..."
@@ -101,11 +93,17 @@ const ProfileDropdown = ({
                 <input
                   type="text"
                   placeholder="Search profiles..."
+                  value={searchTerm}
                   onChange={handleSearchChange}
                 />
+                {isSearching && (
+                  <span style={{ fontSize: "12px", color: "#666" }}>
+                    Searching...
+                  </span>
+                )}
               </div>
 
-              {filteredProfiles.length === 0 ? (
+              {profiles.length === 0 ? (
                 <div
                   style={{
                     padding: "12px 16px",
@@ -113,10 +111,10 @@ const ProfileDropdown = ({
                     fontSize: "14px",
                   }}
                 >
-                  No profiles available
+                  {isSearching ? "Searching..." : "No profiles available"}
                 </div>
               ) : (
-                filteredProfiles.map((profile) => (
+                profiles.map((profile) => (
                   <label key={profile._id} className="checkbox-item">
                     <input
                       type="checkbox"
@@ -136,8 +134,7 @@ const ProfileDropdown = ({
                 value={newProfileName}
                 onChange={(e) => setNewProfileName(e.target.value)}
                 onKeyPress={(e) =>
-                  e.key === "Enter" &&
-                  (e.preventDefault(), handleAddProfile())
+                  e.key === "Enter" && (e.preventDefault(), handleAddProfile())
                 }
               />
               <button

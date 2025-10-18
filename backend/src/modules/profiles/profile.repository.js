@@ -5,8 +5,14 @@ class ProfileRepository {
     const profile = new Profile(profileData);
     return await profile.save();
   }
-  async findAll() {
-    return await Profile.find().sort({ createdAt: -1 });
+  async findAll(name) {
+    let query={}
+    if (name) {
+      const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      query.name = { $regex: escapedName, $options: "i" };
+    }
+
+    return await Profile.find(query).sort({ createdAt: -1 });
   }
   async findByName(name) {
     return await Profile.findOne({

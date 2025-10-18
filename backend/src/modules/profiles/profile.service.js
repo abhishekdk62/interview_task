@@ -11,7 +11,7 @@ class ProfileService {
       err.statusCode = 400;
       throw err;
     }
-    let nameRegex = /^[A-Za-z0-9\s]+$/;
+let nameRegex = /^[A-Za-z]{2}[A-Za-z0-9\s]*$/;
     if (!nameRegex.test(trimmedName)) {
       const error = new Error(MESSAGES.PROFILE_NAME_NOT_VALID);
       error.statusCode = 400;
@@ -33,8 +33,8 @@ class ProfileService {
     }
     return await this.profileRepository.create({ name });
   }
-  async getAllProfiles() {
-    return await this.profileRepository.findAll();
+  async getAllProfiles(name) {
+    return await this.profileRepository.findAll(name);
   }
   async updateProfileTimezone(id, timezone) {
     if (!timezone || timezone.trim() === "") {
