@@ -17,6 +17,7 @@ import "./EventForm.css";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
+
 const TIMEZONE_MAP = {
   "Eastern Time (ET)": "America/New_York",
   "Pacific Time (PT)": "America/Los_Angeles",
@@ -47,22 +48,25 @@ const EventForm = () => {
   );
   const today = dayjs().format("YYYY-MM-DD");
   const [selectedProfiles, setSelectedProfiles] = useState([]);
-  const [timezone, setTimezone] = useState("Eastern Time (ET)");
+  const [selectedTimezone, setSelectedTimezone] = useState("Eastern Time (ET)");
   const [startDate, setStartDate] = useState(today);
   const tommorow = dayjs().add(1, "day").format("YYYY-MM-DD");
-  const currentTime = dayjs().add(1, "minute").format("HH:mm");
-
+  const currentTime = dayjs().add(5, "minute").format("HH:mm");
+const [searchTerm,setSearchTerm]=useState("")
   const [startTime, setStartTime] = useState(currentTime);
   const [endDate, setEndDate] = useState(tommorow);
   const [endTime, setEndTime] = useState("09:00");
   const [newProfileName, setNewProfileName] = useState("");
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isTimezoneDropdownOpen, setIsTimezoneDropdownOpen] = useState(false);
-
+const [filteredProfiles,setFilteredProfiles]=useState([])
   const profileDropdownRef = useRef(null);
   const timezoneDropdownRef = useRef(null);
   const { selectedProfile } = useSelector((state) => state.profiles);
-
+useEffect(()=>{
+  let filtered=profiles.filter((v)=>v.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  setFilteredProfiles(filtered)
+},[searchTerm,profiles])
   useEffect(() => {
     dispatch(fetchAllProfiles());
   }, [dispatch]);
@@ -169,11 +173,10 @@ const EventForm = () => {
       toast.error("Start date cannot be in the past");
       return;
     }
-    const ianaTimezone = TIMEZONE_MAP[timezone];
-    const startDateTime = dayjs.tz(
-      `${startDate} ${startTime}`,
-      ianaTimezone
-    );
+
+    const ianaTimezone = TIMEZONE_MAP[selectedTimezone];
+
+    const startDateTime = dayjs.tz(`${startDate} ${startTime}`, ianaTimezone);
 
     const endDateTime = dayjs.tz(`${endDate} ${endTime}`, ianaTimezone);
 
@@ -197,7 +200,7 @@ const EventForm = () => {
     if (result.type === "events/create/fulfilled") {
       getEvents();
       setSelectedProfiles([]);
-      setTimezone("Eastern Time (ET)");
+      setSelectedTimezone("Eastern Time (ET)");
       setStartDate(today);
       setStartTime(currentTime);
       setEndDate(tommorow);
@@ -238,7 +241,11 @@ const EventForm = () => {
             {isProfileDropdownOpen && (
               <div className="dropdown-menu">
                 <div className="dropdown-list">
-                  {profiles.length === 0 ? (
+                  <div className="profile-search">
+                    <input value={searchTerm} onChange={(e)=>setSearchTerm(e.target.value)} type="text" placeholder="search profiles" />
+                  </div>
+
+                  {filteredProfiles.length === 0 ? (
                     <div
                       style={{
                         padding: "12px 16px",
@@ -249,7 +256,7 @@ const EventForm = () => {
                       No profiles available
                     </div>
                   ) : (
-                    profiles.map((profile) => (
+                    filteredProfiles.map((profile) => (
                       <label key={profile._id} className="checkbox-item">
                         <input
                           type="checkbox"
@@ -307,7 +314,7 @@ const EventForm = () => {
               className="dropdown-trigger"
               onClick={() => setIsTimezoneDropdownOpen(!isTimezoneDropdownOpen)}
             >
-              <span>{timezone}</span>
+              <span>{selectedTimezone}</span>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path
                   d="M5 7.5L10 12.5L15 7.5"
@@ -325,10 +332,10 @@ const EventForm = () => {
                   <div
                     key={tz}
                     className={`dropdown-item ${
-                      timezone === tz ? "selected" : ""
+                      selectedTimezone === tz ? "selected" : ""
                     }`}
                     onClick={() => {
-                      setTimezone(tz);
+                      setSelectedTimezone(tz);
                       setIsTimezoneDropdownOpen(false);
                     }}
                   >
