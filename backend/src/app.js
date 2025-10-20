@@ -40,12 +40,9 @@ const eventLogController = new EventLogController(eventLogService);
  * @access  Public
  */
 app.get("/health", (req, res) => {
-  res.status(200).json({
-    message: "API is running",
-    success: true,
-    timestamp: new Date().toISOString(),
-  });
+  res.sendStatus(200);
 });
+
 
 app.use("/api/profiles", profileRoutes(profileController));
 app.use("/api/events", eventRoutes(eventController));
